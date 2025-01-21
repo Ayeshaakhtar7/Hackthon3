@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { createClient } from "@sanity/client";
-import ProductCard from "../ProductCard/page";
+import ProductCard from "../ProductCard/ProductCard";
 // import ProductCard from "@/Components/ProductCard"
 
 const client = createClient({

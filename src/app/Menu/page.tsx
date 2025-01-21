@@ -23,12 +23,15 @@ function Menu() {
   const [apiData, setApiData] = useState<Product[]>([]);
   const [filteredData, setFilteredData] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [cartData, setCartData] = useState<CartItem | undefined>(undefined); // Cart data, initially undefined
+  const [cartIds, setCartIds] = useState<number[]>([]); // Cart item IDs as an array
 
   const query = `*[_type == 'food']{
     description, price, name, image,
     category, available, id
   }`;
 
+  // Fetching product data from Sanity CMS
   useEffect(() => {
     const fetching = async () => {
       const response = await client.fetch(query);
@@ -38,43 +41,41 @@ function Menu() {
     fetching();
   }, [query]);
 
-  const [cartData, setCartData] = useState<CartItem | null>(null);
-  const [removeCartData, setRemoveCartData] = useState<number | null>(null);
-  const [cartStorage, setCartStorage] = useState<CartItem[]>([]);
-  const [cartIds, setCartIds] = useState<number[]>([]);
-
+  // Fetch cart data from localStorage
   useEffect(() => {
     if (typeof window !== "undefined") {
       const storedCart = localStorage.getItem("cart");
       if (storedCart) {
         const parsedCart = JSON.parse(storedCart) as CartItem[];
-        setCartStorage(parsedCart);
+        // Set cartData to undefined if no items in cart, or set it to the first item
+        setCartData(parsedCart.length > 0 ? parsedCart[0] : undefined);
         setCartIds(parsedCart.map((item) => item.id));
-        if (storedCart.length === 0) {
-          localStorage.removeItem("cart");
-        }
       }
     }
   }, []);
 
-  const addToCart = (item: any) => {
-    setCartData(item);
-    const updatedCartIds = [...cartIds, item.id];
-    setCartIds(updatedCartIds);
-    const updatedCartStorage = [...cartStorage, item];
-    setCartStorage(updatedCartStorage);
-    localStorage.setItem("cart", JSON.stringify(updatedCartStorage));
-    setRemoveCartData(null);
+  // Add item to the cart
+  const addToCart = (item: Product) => {
+    const updatedCartIds = [...cartIds, item.id]; // Add item ID to cartIds array
+    setCartIds(updatedCartIds); // Update cartIds state
+    
+    // Add the first cart item (if any) to cartData, or set cartData to undefined
+    const updatedCartData: CartItem | undefined = updatedCartIds.length > 0 ? { id: updatedCartIds[0] } : undefined;
+    setCartData(updatedCartData); // Update cartData state
+    
+    localStorage.setItem("cart", JSON.stringify(updatedCartIds)); // Store updated cart data in localStorage
   };
 
-  const removeFromCart = (id: any) => {
-    setRemoveCartData(id);
-    const updatedCartIds = cartIds.filter((itemId) => itemId !== id);
-    setCartIds(updatedCartIds);
-    const updatedCartStorage = cartStorage.filter((item) => item.id !== id);
-    setCartStorage(updatedCartStorage);
-    localStorage.setItem("cart", JSON.stringify(updatedCartStorage));
-    setCartData(null);
+  // Remove item from the cart
+  const removeFromCart = (id: number) => {
+    const updatedCartIds = cartIds.filter((itemId) => itemId !== id); // Remove item ID from cartIds array
+    setCartIds(updatedCartIds); // Update cartIds state
+
+    // If no items in cart, set cartData to undefined
+    const updatedCartData: CartItem | undefined = updatedCartIds.length > 0 ? { id: updatedCartIds[0] } : undefined;
+    setCartData(updatedCartData); // Update cartData state
+
+    localStorage.setItem("cart", JSON.stringify(updatedCartIds)); // Store updated cart data in localStorage
   };
 
   // Search functionality
@@ -97,7 +98,7 @@ function Menu() {
   return (
     <>
       <div className="bg-white">
-        <Navbar cartData={cartData} removeCartData={removeCartData} />
+        <Navbar cartData={cartData} removeCartData={cartData?.id} />
         <Banner pageName="Menu" />
 
         {/* Search Bar */}
@@ -130,7 +131,7 @@ function Menu() {
                     {cartIds.includes(item.id) ? (
                       <button
                         onClick={() => removeFromCart(item.id)}
-                        aria-label={`Remove ${item.name} to cart`}
+                        aria-label={`Remove ${item.name} from cart`}
                         className="font-semibold text-xs rounded-full bg-yellow-300 px-3 py-1"
                       >
                         Remove
@@ -152,168 +153,6 @@ function Menu() {
             </div>
           </div>
         </div>
-
-        <div className="m-8 md:m-16 lg:m-20 text-black">
-  <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-    <div className="lg:col-span-2 lg:m-10">
-      <p className="font-bold mb-4 text-2xl md:text-3xl lg:text-[38px]">Main Course</p>
-      {filteredData.length > 0 ? (
-                filteredData.map((item: Product) => (
-                  <div key={item.id}>
-                    <div className="flex justify-between">
-                      <p className="text-lg md:text-xl mt-4 font-semibold">{item.name}</p>
-                      <p className="text-lg md:text-xl font-semibold text-[#FF9F0D]">{item.price}$</p>
-                    </div>
-                    <p className="text-sm md:text-base">{item.description}</p>
-                    {cartIds.includes(item.id) ? (
-                      <button
-                        onClick={() => removeFromCart(item.id)}
-                        aria-label={`Remove ${item.name} to cart`}
-                        className="font-semibold text-xs rounded-full bg-yellow-300 px-3 py-1"
-                      >
-                        Remove
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => addToCart(item)}
-                        aria-label={`Add ${item.name} to cart`}
-                        className="font-semibold text-xs rounded-full bg-yellow-300 px-3 py-1"
-                      >
-                        Buy
-                      </button>
-                    )}
-                  </div>
-                ))
-              ) : (
-                <p>No items match your search.</p>
-              )}
-    </div>
-    <div className="lg:col-span-1 flex justify-center">
-      <Image src={"/burgerwithknife.png"} alt="" width={348} height={626} />
-    </div>
-  </div>
-</div>
-
-
-<div className='relative bg-black'>
-    <div className="absolute inset-0 bg-[url('/bgimg2.png')] bg-cover bg-center md:bg-top lg:bg-cover opacity-10"></div>
-        <div className='flex flex-wrap justify-center items-center md:p-24 md:gap-20 gap-2 p-4'>
-                <div className='md:flex md:flex-wrap text-center md:w-[218px] justify-center items-center'>
-                <Image src={"/Group (3).png"} alt='' width={116} height={120} className='w-[50px] md:w-[116px] ml-6' />
-                <p className=' font-semibold md:text-xl text-xs mt-2'>Professional Chefs</p>
-                <p className=' font-bold md:text-[40px]'>420</p>
-                </div>
-                <div className='md:flex md:flex-wrap md:w-[190px] text-center justify-center items-center'>
-                <Image src={"/Group (2).png"} alt='' width={116} height={120} className='w-[50px] md:w-[116px] ml-4'/>
-                <p className=' font-semibold md:text-xl mt-2 text-xs'>Items Of Food</p>
-                <p className=' font-bold md:text-[40px]'>320</p>
-                </div>
-                <div className='md:flex md:flex-wrap md:w-[218px] justify-center text-center items-center'>
-                <Image src={"/Group (1).png"} alt='' width={116} height={120} className='w-[50px] md:w-[116px] ml-8'/>
-                <p className=' font-semibold md:text-xl mt-2 text-xs'>Years Of Experienced</p>
-                <p className=' font-bold md:text-[40px]'>30+</p>
-                </div>
-        </div>
-    </div>
-
-    <div className="m-5 md:m-10 lg:m-20 text-black">
-  {/* Dessert Section */}
-  <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-    <div className="lg:col-span-1 flex justify-center">
-      <Image src="/icecream.png" alt="" width={348} height={626} />
-    </div>
-    <div className="lg:col-span-2">
-      <p className="font-bold text-[28px] lg:text-[38px] mb-4">Dessert</p>
-      <div className="">
-      {filteredData.length > 0 ? (
-                filteredData.map((item: Product) => (
-                  <div key={item.id}>
-                    <div className="flex justify-between">
-                      <p className="text-lg md:text-xl mt-4 font-semibold">{item.name}</p>
-                      <p className="text-lg md:text-xl font-semibold text-[#FF9F0D]">{item.price}$</p>
-                    </div>
-                    <p className="text-sm md:text-base">{item.description}</p>
-                    {cartIds.includes(item.id) ? (
-                      <button
-                        onClick={() => removeFromCart(item.id)}
-                        aria-label={`Remove ${item.name} to cart`}
-                        className="font-semibold text-xs rounded-full bg-yellow-300 px-3 py-1"
-                      >
-                        Remove
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => addToCart(item)}
-                        aria-label={`Add ${item.name} to cart`}
-                        className="font-semibold text-xs rounded-full bg-yellow-300 px-3 py-1"
-                      >
-                        Buy
-                      </button>
-                    )}
-                  </div>
-                ))
-              ) : (
-                <p>No items match your search.</p>
-              )}
-      </div>
-    </div>
-  </div>
-
-  {/* Drinks Section */}
-  <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mt-10">
-    <div className="lg:col-span-2">
-      <p className="font-bold text-[28px] lg:text-[38px] mb-4">Drinks</p>
-      <div className="">
-      {filteredData.length > 0 ? (
-                filteredData.map((item: Product) => (
-                  <div key={item.id}>
-                    <div className="flex justify-between">
-                      <p className="text-lg md:text-xl mt-4 font-semibold">{item.name}</p>
-                      <p className="text-lg md:text-xl font-semibold text-[#FF9F0D]">{item.price}$</p>
-                    </div>
-                    <p className="text-sm md:text-base">{item.description}</p>
-                    {cartIds.includes(item.id) ? (
-                      <button
-                        onClick={() => removeFromCart(item.id)}
-                        aria-label={`Remove ${item.name} to cart`}
-                        className="font-semibold text-xs rounded-full bg-yellow-300 px-3 py-1"
-                      >
-                        Remove
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => addToCart(item)}
-                        aria-label={`Add ${item.name} to cart`}
-                        className="font-semibold text-xs rounded-full bg-yellow-300 px-3 py-1"
-                      >
-                        Buy
-                      </button>
-                    )}
-                  </div>
-                ))
-              ) : (
-                <p>No items match your search.</p>
-              )}
-      </div>
-    </div>
-    <div className="lg:col-span-1 flex justify-center">
-      <Image src="/drink.png" alt="" width={348} height={626} />
-    </div>
-  </div>
-
-  {/* Partners Section */}
-  <div className="text-center mt-10 text-black">
-    <p className="text-lg">Partners & Clients</p>
-    <p className="font-bold text-xl lg:text-3xl">We work with the best people</p>
-    <div className="flex flex-wrap justify-center gap-5 lg:gap-10 my-5">
-      {["/image 2.png", "/image 60.png", "/image 56.png", "/image 58.png", "/image 57.png", "/image 59.png"].map(
-        (src, index) => (
-          <Image key={index} src={src} alt="" width={200} height={100} className='w-[100px]' />
-        )
-      )}
-    </div>
-  </div>
-</div>
       </div>
     </>
   );

@@ -1,9 +1,11 @@
-import FoodDataFetching from "@/components/FoodDataFectching";
+// import FoodDataFetching from "@/components/FoodDataFectching";
+import FetchFood from "./Components/FetchFood/FetchFood";
 import React from "react";
 const FoodPage = () => {
   return (
     <div>
-      <FoodDataFetching />
+      {/* <FoodDataFetching /> */}
+      <FetchFood/>
     </div>
   );
 };
