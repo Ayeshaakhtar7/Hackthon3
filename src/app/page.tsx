@@ -1,64 +1,25 @@
-import Checkout from "@/components/Checkout/Checkout";
-import Dessert from "@/components/Dessert/Dessert";
-import Drink from "@/components/Drinks/Drinks";
-import Error from "@/components/Error/Error";
-import Experience from "@/components/Experience/Experience";
-import Faq from "@/components/Faq/Faq";
-import Hero from "@/components/HeroSection/Hero";
-import MainCours from "@/components/MainCours/MainCourse";
-import StarterMenu from "@/components/Menu/StartMenu";
-import PartnersAndClients from "@/components/pattnerClient/pattnerClient";
-import Signin from "@/components/Signin/Signin";
-import Signup from "@/components/Signup/Signup";
-import AboutUs from "@/components/Aboutus";
-import FoodCategory from "@/components/FoodCategory";
-import HeroExperience from "@/components/HeroExperience";
-import HeroMenu from "@/components/HeroMenu";
-import Landing from "@/components/Landing/Landing";
-import MeetChef from "@/components/MeetChef";
-import Navbar from "@/components/Navbar/Navbar";
-import FatchFood from "@/components/FetchFood";
+import React from 'react'
+import AboutUs from './Components/AboutUs/AboutUs'
+import FoodCategory from './Components/FoodCategory/FoodCategory'
+import WhyChooseUs from './Components/WhychooseUs/WhychooseUs'
+import Menu from './Components/Menu/Menu'
+import Chef from './Components/Chef/Chef'
+import Blog from './Components/Blog/Blog'
+import Hero from './Hero/Hero'
 
 
-
-export default function Home() {
+function page() {
   return (
     <>
-    {/* Home Page */}
-       <Landing />
-       <AboutUs />
-       <FoodCategory />
-       <HeroMenu />
-       <MeetChef />
-       <HeroExperience />
-
-      {/* Menu Page */}
-       <Navbar />
-       <Hero/>
-       <FatchFood/>
-       <StarterMenu/>
-       <MainCours/>
-       <Experience/>
-       <Dessert/>
-       <Drink/>	
-       <PartnersAndClients/>
-
-       {/* FAQ */}
-       <Faq />
-
-       {/* Checkout */}
-       <Checkout />
-
-       {/* Sign up */}
-       <Signup />
-
-       {/* Sign in */}
-       <Signin />
-
-       {/* 404 Error */}
-       <Error />
-  
-      
+    <Hero/>
+      <AboutUs/>
+      <FoodCategory/>
+      <WhyChooseUs/>
+      <Menu/>
+      <Chef/>
+      <Blog/>
     </>
-  );
+  )
 }
+
+export default page

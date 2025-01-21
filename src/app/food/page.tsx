@@ -1,10 +1,11 @@
-import Food from "@/components/Food";
+
+import Food from "../Components/Food/Food";
 import React from "react";
-const FoodPage = () => {
-  return (
-    <div>
-      <Food />
-    </div>
-  );
+const FoodPage =()=>{
+    return (
+        <div>
+            <Food/>
+        </div>
+    );
 };
-export default FoodPage;
+export default FoodPage

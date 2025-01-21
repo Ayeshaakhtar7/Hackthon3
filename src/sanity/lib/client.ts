@@ -9,11 +9,25 @@
 //   useCdn: true, // Set to false if statically generating pages, using ISR or tag-based revalidation
 // })
 
-import { createClient } from '@sanity/client';
+// import { createClient } from '@sanity/client';
+// export const client = createClient({
+//   projectId: process.env.SANITY_PROJECT_ID, // from your sanity.json
+//   dataset: 'production',
+//   useCdn: true,
+//   token: process.env.SANITY_API_TOKEN, // Add your token here if needed
+//   apiVersion: '2025-01-17', // Always use the latest version
+// });
+
+
+
+
+import { createClient } from 'next-sanity'
+
+import { apiVersion, dataset, projectId } from '../env'
+
 export const client = createClient({
-  projectId: process.env.SANITY_PROJECT_ID, // from your sanity.json
-  dataset: 'production',
-  useCdn: true,
-  token: process.env.SANITY_API_TOKEN, // Add your token here if needed
-  apiVersion: '2025-01-17', // Always use the latest version
-});
+  projectId,
+  dataset,
+  apiVersion,
+  useCdn: true, // Set to false if statically generating pages, using ISR or tag-based revalidation
+})
